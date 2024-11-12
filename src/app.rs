@@ -2,7 +2,6 @@ pub enum CurrentScreen {
     Main,
     Menu,
     Commands,
-    Exiting,
 }
 
 pub enum CurrentlyPlaying {

@@ -1,8 +1,8 @@
 use std::{error::Error, io};
 
-use app::App;
+use app::{App, CurrentScreen};
 use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -10,8 +10,10 @@ use ratatui::{
     prelude::{Backend, CrosstermBackend},
     Terminal,
 };
+use ui::ui;
 
 mod app;
+mod ui;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
@@ -23,7 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     let mut app = App::new();
-    run_app(&mut terminal, &mut app);
+    let res = run_app(&mut terminal, &mut app);
 
     // restore terminal
     disable_raw_mode()?;
@@ -34,7 +36,32 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
     terminal.show_cursor()?;
 
+    if let Err(err) = res {
+        eprintln!("{err:?}");
+    }
+
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {}
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<()> {
+    loop {
+        terminal.draw(|f| ui(f, app))?;
+
+        // Event Handling...
+        if let Event::Key(key) = event::read()? {
+            if key.kind == event::KeyEventKind::Release {
+                continue;
+            }
+
+            match app.current_screen {
+                CurrentScreen::Main => match key.code {
+                    // 'q' for exiting
+                    KeyCode::Char('q') => return Ok(()),
+                    _ => {}
+                },
+                CurrentScreen::Menu => {}
+                CurrentScreen::Commands => {}
+            }
+        }
+    }
+}
