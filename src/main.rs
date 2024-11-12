@@ -56,7 +56,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
             match app.current_screen {
                 CurrentScreen::Main => match key.code {
                     // 'q' for exiting
-                    KeyCode::Char('q') => return Ok(()),
+                    KeyCode::Char('q') | KeyCode::Char('Q') | KeyCode::Esc => return Ok(()),
                     _ => {}
                 },
                 CurrentScreen::Menu => {}
