@@ -2,8 +2,12 @@ use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style, Stylize},
-    text::{Line, Span, Text},
-    widgets::{Block, BorderType, Borders, Paragraph},
+    symbols,
+    text::{Span, Text},
+    widgets::{
+        canvas::{Canvas, Line, Map, MapResolution, Rectangle},
+        Block, BorderType, Borders, Paragraph,
+    },
     Frame,
 };
 
@@ -31,6 +35,14 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(title, chunks[0]);
 
+    let middle_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(70), Constraint::Fill(1)])
+        .split(chunks[1]);
+
+    frame.render_widget(Paragraph::new("1"), middle_chunks[0]);
+    frame.render_widget(Paragraph::new("2"), middle_chunks[1]);
+
     let keys = [("M/m", "Menu"), ("Q/Esc", "Quit")];
     let spans = keys
         .iter()
@@ -46,7 +58,9 @@ pub fn ui(frame: &mut Frame, app: &App) {
             [key, desc]
         })
         .collect_vec();
-    let footer = Line::from(spans).centered().style(Style::new().on_black());
+    let footer = ratatui::text::Line::from(spans)
+        .centered()
+        .style(Style::new().on_black());
 
     frame.render_widget(footer, chunks[2]);
 }
