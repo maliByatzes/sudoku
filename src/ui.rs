@@ -2,12 +2,8 @@ use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style, Stylize},
-    symbols,
     text::{Span, Text},
-    widgets::{
-        canvas::{Canvas, Line, Map, MapResolution, Rectangle},
-        Block, BorderType, Borders, Paragraph,
-    },
+    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table},
     Frame,
 };
 
@@ -23,26 +19,25 @@ pub fn ui(frame: &mut Frame, app: &App) {
         ])
         .split(frame.area());
 
+    render_title(frame, chunks[0]);
+    render_main_window(frame, chunks[1]);
+    render_footer(frame, chunks[2]);
+}
+
+fn render_title(frame: &mut Frame, r: Rect) {
     let title_block = Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
         .style(Style::new().white().on_black());
 
-    // NOTE: make this dynamic
     let title = Paragraph::new(Text::styled("Sudoku", Style::default().fg(Color::Green)))
         .centered()
         .block(title_block);
 
-    frame.render_widget(title, chunks[0]);
+    frame.render_widget(title, r)
+}
 
-    let middle_chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(70), Constraint::Fill(1)])
-        .split(chunks[1]);
-
-    frame.render_widget(Paragraph::new("1"), middle_chunks[0]);
-    frame.render_widget(Paragraph::new("2"), middle_chunks[1]);
-
+fn render_footer(frame: &mut Frame, r: Rect) {
     let keys = [("M/m", "Menu"), ("Q/Esc", "Quit")];
     let spans = keys
         .iter()
@@ -58,11 +53,69 @@ pub fn ui(frame: &mut Frame, app: &App) {
             [key, desc]
         })
         .collect_vec();
+
     let footer = ratatui::text::Line::from(spans)
         .centered()
         .style(Style::new().on_black());
 
-    frame.render_widget(footer, chunks[2]);
+    frame.render_widget(footer, r);
+}
+
+fn render_main_window(frame: &mut Frame, r: Rect) {
+    let middle_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(70), Constraint::Fill(1)])
+        .split(r);
+
+    let board_chunk = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Fill(1),
+            Constraint::Percentage(70),
+            Constraint::Fill(1),
+        ])
+        .split(
+            Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Fill(1),
+                    Constraint::Percentage(70),
+                    Constraint::Fill(1),
+                ])
+                .split(middle_chunks[0])[1],
+        )[1];
+
+    // Just sample data, to be deleted
+    let sample_data: Vec<Vec<String>> = (0..9)
+        .map(|_| (0..9).map(|_| String::from("hi")).collect())
+        .collect();
+
+    // Create table rows
+    let rows: Vec<Row> = sample_data
+        .iter()
+        .map(|row| {
+            let cells = row.iter().map(|c| Cell::from(c.as_str()));
+            Row::new(cells)
+        })
+        .collect();
+
+    let widths = [
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+        Constraint::Length(7),
+    ];
+
+    let table = Table::new(rows, widths)
+        .block(Block::default().borders(Borders::ALL))
+        .column_spacing(4);
+
+    frame.render_widget(table, board_chunk);
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
