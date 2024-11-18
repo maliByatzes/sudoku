@@ -13,6 +13,7 @@ use ratatui::{
 use ui::ui;
 
 mod app;
+mod grid;
 mod ui;
 
 fn main() -> Result<(), Box<dyn Error>> {

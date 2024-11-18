@@ -3,11 +3,11 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style, Stylize},
     text::{Span, Text},
-    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table},
+    widgets::{Block, BorderType, Borders, Paragraph},
     Frame,
 };
 
-use crate::app::App;
+use crate::{app::App, grid::Grid};
 
 pub fn ui(frame: &mut Frame, app: &App) {
     let chunks = Layout::default()
@@ -85,37 +85,9 @@ fn render_main_window(frame: &mut Frame, r: Rect) {
                 .split(middle_chunks[0])[1],
         )[1];
 
-    // Just sample data, to be deleted
-    let sample_data: Vec<Vec<String>> = (0..9)
-        .map(|_| (0..9).map(|_| String::from("hi")).collect())
-        .collect();
+    let grid = Grid::default();
 
-    // Create table rows
-    let rows: Vec<Row> = sample_data
-        .iter()
-        .map(|row| {
-            let cells = row.iter().map(|c| Cell::from(c.as_str()));
-            Row::new(cells)
-        })
-        .collect();
-
-    let widths = [
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-        Constraint::Length(7),
-    ];
-
-    let table = Table::new(rows, widths)
-        .block(Block::default().borders(Borders::ALL))
-        .column_spacing(4);
-
-    frame.render_widget(table, board_chunk);
+    frame.render_widget(grid, board_chunk);
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
