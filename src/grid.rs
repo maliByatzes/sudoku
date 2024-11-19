@@ -1,6 +1,6 @@
 use ratatui::{
     buffer::Buffer,
-    layout::Rect,
+    layout::{Margin, Rect},
     style::Style,
     widgets::{BorderType, Widget},
 };
@@ -9,8 +9,6 @@ use ratatui::{
 pub struct Grid {
     rows: u16,
     cols: u16,
-    // borders: Borders,
-    // style: Style,
 }
 
 impl Grid {
@@ -25,6 +23,7 @@ impl Widget for Grid {
         Self: Sized,
     {
         self.render_border(area, buf);
+        self.render_col_lines(area, buf);
     }
 }
 
@@ -41,6 +40,14 @@ impl Grid {
         self.render_top_left_corner(area, buf);
     }
 
+    fn render_col_lines(&self, area: Rect, buf: &mut Buffer) {
+        for y in area.top()..area.bottom() {
+            buf[(area.left() + 4, y)]
+                .set_symbol(BorderType::Plain.to_border_set().vertical_left)
+                .set_style(Style::default());
+        }
+    }
+
     fn render_left_side(&self, area: Rect, buf: &mut Buffer) {
         for y in area.top()..area.bottom() {
             buf[(area.left(), y)]
@@ -51,7 +58,7 @@ impl Grid {
 
     fn render_top_side(&self, area: Rect, buf: &mut Buffer) {
         for x in area.left()..area.right() {
-            buf[(x, area.top())]
+            buf[(x, area.top() - 1)]
                 .set_symbol(BorderType::Plain.to_border_set().horizontal_top)
                 .set_style(Style::default());
         }

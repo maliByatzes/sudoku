@@ -71,7 +71,7 @@ fn render_main_window(frame: &mut Frame, r: Rect) {
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Fill(1),
-            Constraint::Percentage(70),
+            Constraint::Percentage(95),
             Constraint::Fill(1),
         ])
         .split(
@@ -79,7 +79,7 @@ fn render_main_window(frame: &mut Frame, r: Rect) {
                 .direction(Direction::Vertical)
                 .constraints([
                     Constraint::Fill(1),
-                    Constraint::Percentage(70),
+                    Constraint::Percentage(95),
                     Constraint::Fill(1),
                 ])
                 .split(middle_chunks[0])[1],
