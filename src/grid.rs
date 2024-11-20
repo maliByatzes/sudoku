@@ -1,19 +1,15 @@
-use ratatui::{
-    buffer::Buffer,
-    layout::{Margin, Rect},
-    style::Style,
-    widgets::{BorderType, Widget},
-};
+use ratatui::{buffer::Buffer, layout::Rect, style::Style, widgets::Widget};
 
 #[derive(Debug, Default)]
 pub struct Grid {
-    rows: u16,
-    cols: u16,
+    style: Style,
 }
 
 impl Grid {
-    pub const fn new() -> Self {
-        Self { rows: 0, cols: 0 }
+    pub fn new() -> Self {
+        Self {
+            style: Style::default(),
+        }
     }
 }
 
@@ -22,87 +18,68 @@ impl Widget for Grid {
     where
         Self: Sized,
     {
-        self.render_border(area, buf);
-        self.render_col_lines(area, buf);
+        if area.width < 46 || area.height < 19 {
+            return;
+        }
+
+        let (top, middle, bottom) = Self::build_grid_strings();
+        let vertical = "│";
+
+        let start_x = area.x;
+        let start_y = area.y;
+        let cell_width = 5;
+        let cell_height = 2;
+
+        buf.set_string(start_x, start_y, &top, self.style);
+
+        for row in 1..9 {
+            for col in 0..=9 {
+                buf.set_string(
+                    start_x + (col * cell_width),
+                    start_y + (row * cell_height) - 1,
+                    vertical,
+                    self.style,
+                );
+            }
+
+            buf.set_string(start_x, start_y + (row * cell_height), &middle, self.style);
+        }
+
+        for col in 0..=9 {
+            buf.set_string(
+                start_x + (col * cell_width),
+                start_y + 17,
+                vertical,
+                self.style,
+            );
+        }
+
+        buf.set_string(start_x, start_y + 18, &bottom, self.style);
     }
 }
 
 impl Grid {
-    fn render_border(&self, area: Rect, buf: &mut Buffer) {
-        self.render_left_side(area, buf);
-        self.render_top_side(area, buf);
-        self.render_right_side(area, buf);
-        self.render_bottom_side(area, buf);
-
-        self.render_bottom_right_corner(area, buf);
-        self.render_top_right_corner(area, buf);
-        self.render_bottom_left_corner(area, buf);
-        self.render_top_left_corner(area, buf);
+    fn style(mut self, style: Style) -> Self {
+        self.style = style;
+        self
     }
 
-    fn render_col_lines(&self, area: Rect, buf: &mut Buffer) {
-        for y in area.top()..area.bottom() {
-            buf[(area.left() + 4, y)]
-                .set_symbol(BorderType::Plain.to_border_set().vertical_left)
-                .set_style(Style::default());
-        }
-    }
+    fn build_grid_strings() -> (String, String, String) {
+        let mut top = String::new();
+        top.push_str("┌─");
+        top.push_str("───┬─".repeat(8).as_str());
+        top.push_str("───┐\n");
 
-    fn render_left_side(&self, area: Rect, buf: &mut Buffer) {
-        for y in area.top()..area.bottom() {
-            buf[(area.left(), y)]
-                .set_symbol(BorderType::Plain.to_border_set().vertical_left)
-                .set_style(Style::default());
-        }
-    }
+        let mut middle = String::new();
+        middle.push_str("├─");
+        middle.push_str("───┼─".repeat(8).as_str());
+        middle.push_str("───┤\n");
 
-    fn render_top_side(&self, area: Rect, buf: &mut Buffer) {
-        for x in area.left()..area.right() {
-            buf[(x, area.top() - 1)]
-                .set_symbol(BorderType::Plain.to_border_set().horizontal_top)
-                .set_style(Style::default());
-        }
-    }
+        let mut bottom = String::new();
+        bottom.push_str("└─");
+        bottom.push_str("───┴─".repeat(8).as_str());
+        bottom.push_str("───┘\n");
 
-    fn render_right_side(&self, area: Rect, buf: &mut Buffer) {
-        let x = area.right() - 1;
-        for y in area.top()..area.bottom() {
-            buf[(x, y)]
-                .set_symbol(BorderType::Plain.to_border_set().vertical_right)
-                .set_style(Style::default());
-        }
-    }
-
-    fn render_bottom_side(&self, area: Rect, buf: &mut Buffer) {
-        let y = area.bottom() - 1;
-        for x in area.left()..area.right() {
-            buf[(x, y)]
-                .set_symbol(BorderType::Plain.to_border_set().horizontal_bottom)
-                .set_style(Style::default());
-        }
-    }
-
-    fn render_bottom_right_corner(&self, area: Rect, buf: &mut Buffer) {
-        buf[(area.right() - 1, area.bottom() - 1)]
-            .set_symbol(BorderType::Plain.to_border_set().bottom_right)
-            .set_style(Style::default());
-    }
-
-    fn render_top_right_corner(&self, area: Rect, buf: &mut Buffer) {
-        buf[(area.right() - 1, area.top())]
-            .set_symbol(BorderType::Plain.to_border_set().top_right)
-            .set_style(Style::default());
-    }
-
-    fn render_bottom_left_corner(&self, area: Rect, buf: &mut Buffer) {
-        buf[(area.left(), area.bottom() - 1)]
-            .set_symbol(BorderType::Plain.to_border_set().bottom_left)
-            .set_style(Style::default());
-    }
-
-    fn render_top_left_corner(&self, area: Rect, buf: &mut Buffer) {
-        buf[(area.left(), area.top())]
-            .set_symbol(BorderType::Plain.to_border_set().top_left)
-            .set_style(Style::default());
+        (top, middle, bottom)
     }
 }

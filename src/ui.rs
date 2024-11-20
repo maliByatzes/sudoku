@@ -71,7 +71,7 @@ fn render_main_window(frame: &mut Frame, r: Rect) {
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Fill(1),
-            Constraint::Percentage(95),
+            Constraint::Percentage(60),
             Constraint::Fill(1),
         ])
         .split(
