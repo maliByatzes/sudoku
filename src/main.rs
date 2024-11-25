@@ -2,7 +2,10 @@ use std::{error::Error, io};
 
 use app::{App, CurrentScreen};
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, MouseButton, MouseEvent,
+        MouseEventKind,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -62,6 +65,20 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                 },
                 CurrentScreen::Menu => {}
                 CurrentScreen::Commands => {}
+            }
+        }
+
+        // Mouse handling
+        if let Event::Mouse(MouseEvent {
+            kind, column, row, ..
+        }) = event::read()?
+        {
+            if MouseEventKind::Down(MouseButton::Left) == kind {
+                match app.current_screen {
+                    CurrentScreen::Main => {}
+                    CurrentScreen::Commands => {}
+                    _ => {}
+                }
             }
         }
     }

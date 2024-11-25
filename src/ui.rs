@@ -109,3 +109,27 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
         ])
         .split(popup_layout[1])[1]
 }
+
+fn get_grid_position(mouse_x: i32, mouse_y: i32) -> Option<(i32, i32)> {
+    None
+    /*
+    let relative_x = mouse_x - app.start_x as i32;
+    let relative_y = mouse_y - app.start_y as i32;
+
+    if relative_x <= 0
+        || relative_y <= 0
+        || relative_x >= (9 * app.cell_width) as i32
+        || relative_y >= (9 * app.cell_height) as i32
+    {
+        return None;
+    }
+
+    let grid_x = relative_x / app.cell_width as i32;
+    let grid_y = relative_x / app.cell_width as i32;
+
+    if (0..9).contains(&grid_x) && (0..9).contains(&grid_y) {
+        Some((grid_x, grid_y))
+    } else {
+        None
+    }*/
+}
